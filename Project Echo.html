@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reinventing Investments</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            background-color: #0d0d2b;
+        }
+        #canvas-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, #1a1a4a 0%, #0d0d2b 100%);
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        #overlay-content {
+            position: absolute;
+            top: 0;
+            left: 60%;
+            width: 35%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+            padding: 2rem;
+            color: #ffffff;
+        }
+        .text-section {
+            max-width: 400px;
+            text-align: right;
+            pointer-events: auto;
+        }
+        @media (max-width: 768px) {
+            #overlay-content {
+                left: 0;
+                width: 100%;
+                align-items: center;
+                text-align: center;
+                padding: 1rem;
+            }
+            .text-section {
+                margin-right: 0;
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <div id="overlay-content">
+            <div class="text-section">
+                <h1 class="text-3xl md:text-4xl font-bold mb-4">Project Echo</h1>
+                <p class="text-base md:text-lg mb-6 leading-relaxed">
+                    Lorem ipsum Magnis operibus, splendida, consectetur adipiscing elit. Praesent ac leo a odio tempor facilisis. Etiam ultrices ipsum ac est mollis, eget accumsan nisl consectetur. Donec sed purus in metus vulputate posuere. Vivamus quis magna at mi tincidunt efficitur. Aliquam erat volutpat. Fusce ut neque eu arcu ultrices eleifend. Pellentesque a velit.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let scene, camera, renderer, picturePlane, particles;
+        let mouseX = 0, mouseY = 0;
+        let windowHalfX = window.innerWidth / 2;
+        let windowHalfY = window.innerHeight / 2;
+
+        function init() {
+            const container = document.getElementById('canvas-container');
+
+            // Scene
+            scene = new THREE.Scene();
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            // Load the image and create the plane
+            const textureLoader = new THREE.TextureLoader();
+            textureLoader.load('ProjectEchoRobotGood.png',
+                (texture) => {
+                    const planeSize = 3; // Use a single variable for width and height
+                    const planeGeometry = new THREE.PlaneGeometry(planeSize, planeSize);
+                    const planeMaterial = new THREE.MeshBasicMaterial({
+                        map: texture,
+                        transparent: true,
+                        side: THREE.DoubleSide
+                    });
+
+                    picturePlane = new THREE.Mesh(planeGeometry, planeMaterial);
+                    picturePlane.position.x = -2.5; // Position it to the left
+                    scene.add(picturePlane);
+                },
+                undefined, // onProgress callback (optional)
+                (err) => {
+                    console.error('An error happened while loading the image:', err);
+                }
+            );
+
+            // Particles around the picture
+            const particleGeometry = new THREE.BufferGeometry();
+            const particleCount = 20000;
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+            const color = new THREE.Color();
+
+            for (let i = 0; i < particleCount; i++) {
+                const radius = 2.5 + Math.random() * 3;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos(Math.random() * 2 - 1);
+
+                positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+                positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+                positions[i * 3 + 2] = radius * Math.cos(phi);
+
+                color.setHSL(0.55 + Math.random() * 0.1, 0.9, 0.7 + Math.random() * 0.2);
+                colors[i * 3] = color.r;
+                colors[i * 3 + 1] = color.g;
+                colors[i * 3 + 2] = color.b;
+            }
+
+            particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const particleMaterial = new THREE.PointsMaterial({
+                size: 0.008,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.7,
+                blending: THREE.AdditiveBlending
+            });
+
+            particles = new THREE.Points(particleGeometry, particleMaterial);
+            particles.position.x = -2.5; // Align particles with the picture
+            scene.add(particles);
+
+            // Lighting (optional)
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(1, 1, 1).normalize();
+            scene.add(directionalLight);
+
+            // Event Listeners
+            window.addEventListener('resize', onWindowResize, false);
+            document.addEventListener('mousemove', onDocumentMouseMove, false);
+            document.addEventListener('touchmove', onDocumentTouchMove, { passive: false });
+        }
+
+        function onWindowResize() {
+            windowHalfX = window.innerWidth / 2;
+            windowHalfY = window.innerHeight / 2;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onDocumentMouseMove(event) {
+            mouseX = (event.clientX - windowHalfX) * 0.001;
+            mouseY = (event.clientY - windowHalfY) * 0.001;
+        }
+
+        function onDocumentTouchMove(event) {
+            if (event.touches.length === 1) {
+                event.preventDefault();
+                mouseX = (event.touches[0].pageX - windowHalfX) * 0.001;
+                mouseY = (event.touches[0].pageY - windowHalfY) * 0.001;
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate the picture plane if it exists
+            if (picturePlane) {
+                picturePlane.rotation.y += 0.002;
+                picturePlane.rotation.x += 0.0005;
+            }
+
+            // Rotate particles slightly faster/differently
+            if (particles) {
+                particles.rotation.y += 0.0015;
+                particles.rotation.x += 0.0007;
+            }
+
+            // Apply subtle camera movement based on mouse position
+            camera.position.x += (mouseX * 0.5 - camera.position.x) * .05;
+            camera.position.y += (-mouseY * 0.5 - camera.position.y) * .05;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+
+        // Initialize and start animation when the window loads
+        window.onload = function () {
+            init();
+            animate();
+        };
+    </script>
+</body>
+</html>
