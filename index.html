@@ -95,7 +95,7 @@
             const textureLoader = new THREE.TextureLoader();
             textureLoader.load('ProjectEchoRobotGood.png',
                 (texture) => {
-                    const planeSize = 8; // Use a single variable for width and height
+                    const planeSize = 5; // Use a single variable for width and height
                     const planeGeometry = new THREE.PlaneGeometry(planeSize, planeSize);
                     const planeMaterial = new THREE.MeshBasicMaterial({
                         map: texture,
@@ -215,6 +215,7 @@
     </script>
 </body>
 </html>
+
 
 
 
