@@ -160,7 +160,7 @@
 
             // Camera
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 0;
+            camera.position.z = 5;
 
             // Renderer
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -180,7 +180,7 @@
                     });
 
                     picturePlane = new THREE.Mesh(planeGeometry, planeMaterial);
-                    picturePlane.position.x = -5;
+                    picturePlane.position.x = 0;
                     scene.add(picturePlane);
                 },
                 undefined,
@@ -223,7 +223,7 @@
             });
 
             particles = new THREE.Points(particleGeometry, particleMaterial);
-            particles.position.x = -2.5;
+            particles.position.x = 0;
             scene.add(particles);
 
             // Lighting (optional)
@@ -288,5 +288,6 @@
     </script>
 </body>
 </html>
+
 
 
