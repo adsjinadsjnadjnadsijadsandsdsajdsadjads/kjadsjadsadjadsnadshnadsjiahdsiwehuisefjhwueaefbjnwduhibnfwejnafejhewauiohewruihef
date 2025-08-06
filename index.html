@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reinventing Investments</title>
+    <title>Project Echo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -95,7 +95,7 @@
             const textureLoader = new THREE.TextureLoader();
             textureLoader.load('ProjectEchoRobotGood.png',
                 (texture) => {
-                    const planeSize = 5; // Use a single variable for width and height
+                    const planeSize = 6;
                     const planeGeometry = new THREE.PlaneGeometry(planeSize, planeSize);
                     const planeMaterial = new THREE.MeshBasicMaterial({
                         map: texture,
@@ -104,10 +104,10 @@
                     });
 
                     picturePlane = new THREE.Mesh(planeGeometry, planeMaterial);
-                    picturePlane.position.x = -2.5; // Position it to the left
+                    picturePlane.position.x = -2.5;
                     scene.add(picturePlane);
                 },
-                undefined, // onProgress callback (optional)
+                undefined,
                 (err) => {
                     console.error('An error happened while loading the image:', err);
                 }
@@ -147,7 +147,7 @@
             });
 
             particles = new THREE.Points(particleGeometry, particleMaterial);
-            particles.position.x = -2.5; // Align particles with the picture
+            particles.position.x = -2.5;
             scene.add(particles);
 
             // Lighting (optional)
@@ -187,16 +187,14 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            // Rotate the picture plane if it exists
             if (picturePlane) {
-                // picturePlane.rotation.y += 0.002;
-                // picturePlane.rotation.x += 0.0005;
+                // The robot does not rotate
             }
 
-            // Rotate particles slightly faster/differently
             if (particles) {
-                // particles.rotation.y += 0.0015;
-                // particles.rotation.x += 0.0007;
+                // The particles rotate
+                particles.rotation.y += 0.0015;
+                particles.rotation.x += 0.0007;
             }
 
             // Apply subtle camera movement based on mouse position
@@ -207,7 +205,6 @@
             renderer.render(scene, camera);
         }
 
-        // Initialize and start animation when the window loads
         window.onload = function () {
             init();
             animate();
@@ -215,7 +212,3 @@
     </script>
 </body>
 </html>
-
-
-
-
